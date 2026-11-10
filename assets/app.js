@@ -89,7 +89,7 @@ const img = (id, alt, w) => `<img src="${U(id, w)}" alt="${alt}" loading="lazy" 
 const header = `<div id="prog"></div><div class="glow"></div>
 <header class="nav"><div class="wrap">
   <a href="index.html" class="logo"><span class="mark">N</span><span><b>NUPL</b><small>NIYATI UDYOG PVT. LTD.</small></span></a>
-  <ul class="menu">${NAV.map(([h, t, k]) => `<li><a href="${h}" class="${k === page ? 'on' : ''}">${t}</a></li>`).join('')}</ul>
+  <ul class="menu">${NAV.map(([h, t, k]) => `<li><a href="${h}" class="${k === page ? 'on' : ''}">${t}</a></li>`).join('')}<li class="m-cta"><a href="contact.html" class="btn">Request a Quote ${AR}</a></li></ul>
   <a href="contact.html" class="btn" data-mag>Request a Quote ${AR}</a>
   <button class="burger" aria-label="Menu"><span></span><span></span><span></span></button>
 </div></header>`;
@@ -147,15 +147,20 @@ if (sel) {
 /* ===== Hero: split words + 3D TMT bars ===== */
 $$('.hero h1').forEach(h => {
   let k = 0;
-  h.innerHTML = h.innerHTML.split(/(<br>|<em>.*?<\/em>|\s+)/).map(t => {
-    if (!t || /^\s+$/.test(t)) return t ? ' ' : '';
-    if (t === '<br>') return t;
-    return `<span class="w"><span style="animation-delay:${.15 + k++ * .07}s">${t}</span></span>`;
-  }).join('');
+  const W = t => `<span class="w"><span style="animation-delay:${.15 + k++ * .07}s">${t}</span></span>`, parts = [];
+  h.innerHTML.replace(/<br>|<em>(.*?)<\/em>|[^\s<]+/g, (m, em) => {
+    if (m === '<br>') parts.push(m);
+    else if (em !== undefined) parts.push(em.split(/\s+/).map(w => W(`<em>${w}</em>`)).join(' '));
+    else parts.push(m.split(/(?<=-)/).map(W).join(''));
+  });
+  h.innerHTML = parts.join(' ').replace(/ ?<br> ?/g, '<br>');
 });
+
 /* ===== Interactions ===== */
 const nav = $('header.nav'), prog = $('#prog'), glow = $('.glow');
 $('.burger').onclick = () => document.body.classList.toggle('open');
+addEventListener('resize', () => { if (innerWidth > 1180) document.body.classList.remove('open'); });
+addEventListener('keydown', e => { if (e.key === 'Escape') document.body.classList.remove('open'); });
 $$('.menu a').forEach(a => a.onclick = () => document.body.classList.remove('open'));
 
 // reveal
